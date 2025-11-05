@@ -25,8 +25,23 @@ class AdminController extends Controller
         $totalProducts = Product::count();
         $totalOrders = Order::count();
         $totalRevenue = Order::where('status', 'Selesai')->sum('total_harga');
+        $totalCustomers = User::where('role', '!=', 'admin')->count(); // Count users who are not admins
 
-        return view('admin.dashboard', compact('totalProducts', 'totalOrders', 'totalRevenue'));
+        // Get top selling products
+        $topSellingProducts = Order::where('status', 'Selesai')
+            ->with('product')
+            ->selectRaw('produk_id, SUM(jumlah) as jumlah_terjual')
+            ->groupBy('produk_id')
+            ->orderBy('jumlah_terjual', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(function ($item) {
+                $item->nama_produk = $item->product->nama_produk ?? 'Produk Tidak Ditemukan';
+                $item->stok = $item->product->stok ?? 0;
+                return $item;
+            });
+
+        return view('admin.dashboard', compact('totalProducts', 'totalOrders', 'totalRevenue', 'totalCustomers', 'topSellingProducts'));
     }
 
     public function showLoginForm()
@@ -60,7 +75,7 @@ class AdminController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect('/admin/login');
+        return redirect()->route('login');
     }
 
     // Product management
@@ -368,27 +383,60 @@ class AdminController extends Controller
         }
 
         $request->validate([
-            'status' => 'required|in:Menunggu,Diproses,Dikirim,Selesai',
+            'status' => 'required|in:Menunggu,Diproses,Dikirim,Selesai,Dibatalkan',
         ]);
 
         $order = Order::findOrFail($id);
+        $previousStatus = $order->status;
         $order->update(['status' => $request->status]);
+
+        // Atur stok berdasarkan perubahan status
+        $product = $order->product;
+        if ($product) {
+            // Jika status berubah dari 'Selesai' ke status lain, tambah kembali stok
+            if ($previousStatus === 'Selesai' && $request->status !== 'Selesai') {
+                $product->increment('stok', $order->jumlah);
+            }
+            // Jika status berubah ke 'Selesai' dari status lain, kurangi stok
+            elseif ($previousStatus !== 'Selesai' && $request->status === 'Selesai') {
+                $product->decrement('stok', $order->jumlah);
+            }
+        }
 
         return redirect()->route('admin.orders.index')->with('success', 'Status pesanan berhasil diperbarui.');
     }
 
     // Reports
-    public function reports()
+    public function reports(Request $request)
     {
         if (!Auth::user()->isAdmin()) {
             abort(403, 'Unauthorized access');
         }
 
-        // Get all completed orders
-        $orders = Order::with(['user', 'product'])->where('status', 'Selesai')
-            ->orderBy('created_at', 'desc')
-            ->get();
-            
+        // Build the query with filters
+        $query = Order::with(['user', 'product']);
+        
+        // Filter by date range
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('created_at', [
+                $request->start_date . ' 00:00:00', 
+                $request->end_date . ' 23:59:59'
+            ]);
+        } elseif ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        } elseif ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+
+        // Filter by product
+        if ($request->filled('product_id')) {
+            $query->where('produk_id', $request->product_id);
+        }
+
+        // Get orders based on filters
+        $orders = $query->orderBy('created_at', 'desc')->get();
+        
+        // Calculate total revenue based on filtered orders
         $totalRevenue = $orders->sum('total_harga');
 
         // Get monthly sales report (for chart)
@@ -398,20 +446,153 @@ class AdminController extends Controller
             ->orderBy('month')
             ->get();
 
-        return view('admin.reports.index', compact('orders', 'totalRevenue', 'monthlySales'));
+        // Get all products for the filter dropdown
+        $products = Product::all();
+
+        return view('admin.reports.index', compact('orders', 'totalRevenue', 'monthlySales', 'products'));
     }
 
-    public function generatePdfReport()
+    public function generateExcelReport(Request $request)
     {
         if (!Auth::user()->isAdmin()) {
             abort(403, 'Unauthorized access');
         }
 
-        $orders = Order::with(['user', 'product'])->where('status', 'Selesai')
-            ->orderBy('created_at', 'desc')
-            ->get();
-        $totalRevenue = $orders->sum('total_harga');
+        // Build the query with filters (same as reports function)
+        $query = Order::with(['user', 'product']);
         
-        return view('admin.reports.pdf', compact('orders', 'totalRevenue'));
+        // Filter by date range
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('created_at', [
+                $request->start_date . ' 00:00:00', 
+                $request->end_date . ' 23:59:59'
+            ]);
+        } elseif ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        } elseif ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+
+        // Filter by product
+        if ($request->filled('product_id')) {
+            $query->where('produk_id', $request->product_id);
+        }
+
+        $orders = $query->orderBy('created_at', 'desc')->get();
+
+        // Create the Excel file content
+        $headers = [
+            "Content-type" => "application/vnd.ms-excel",
+            "Content-Disposition" => "attachment; filename=laporan_penjualan_" . date('Y-m-d') . ".xls",
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => "0"
+        ];
+
+        $callback = function() use ($orders) {
+            $FH = fopen('php://output', 'w');
+            
+            // Write header row
+            fputcsv($FH, [
+                'ID Pesanan',
+                'Pelanggan',
+                'Produk',
+                'Jumlah',
+                'Total Harga',
+                'Status',
+                'Tanggal'
+            ], "\t");
+            
+            // Write data rows
+            foreach ($orders as $order) {
+                fputcsv($FH, [
+                    $order->custom_order_id ?? $order->id,
+                    $order->user->nama ?? 'N/A',
+                    $order->product->nama_produk ?? 'N/A',
+                    $order->jumlah,
+                    'Rp ' . number_format($order->total_harga, 0, ',', '.'),
+                    $order->status,
+                    $order->created_at->format('d M Y')
+                ], "\t");
+            }
+            
+            fclose($FH);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
+
+    public function generateCsvReport(Request $request)
+    {
+        if (!Auth::user()->isAdmin()) {
+            abort(403, 'Unauthorized access');
+        }
+
+        // Build the query with filters (same as reports function)
+        $query = Order::with(['user', 'product']);
+        
+        // Filter by date range
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('created_at', [
+                $request->start_date . ' 00:00:00', 
+                $request->end_date . ' 23:59:59'
+            ]);
+        } elseif ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        } elseif ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+
+        // Filter by product
+        if ($request->filled('product_id')) {
+            $query->where('produk_id', $request->product_id);
+        }
+
+        $orders = $query->orderBy('created_at', 'desc')->get();
+
+        // Create the CSV file content
+        $headers = [
+            "Content-type" => "text/csv",
+            "Content-Disposition" => "attachment; filename=laporan_penjualan_" . date('Y-m-d') . ".csv",
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => "0"
+        ];
+
+        $callback = function() use ($orders) {
+            $FH = fopen('php://output', 'w');
+            
+            // Write header row
+            fputcsv($FH, [
+                'ID Pesanan',
+                'Pelanggan',
+                'Produk',
+                'Jumlah',
+                'Total Harga',
+                'Status',
+                'Tanggal'
+            ]);
+            
+            // Write data rows
+            foreach ($orders as $order) {
+                fputcsv($FH, [
+                    $order->custom_order_id ?? $order->id,
+                    $order->user->nama ?? 'N/A',
+                    $order->product->nama_produk ?? 'N/A',
+                    $order->jumlah,
+                    'Rp ' . number_format($order->total_harga, 0, ',', '.'),
+                    $order->status,
+                    $order->created_at->format('d M Y')
+                ]);
+            }
+            
+            fclose($FH);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+
+
+
 }
