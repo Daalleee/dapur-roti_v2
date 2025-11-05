@@ -16,6 +16,28 @@ class AuthController extends Controller
     public function showPublicHome()
     {
         $products = Product::with('category')->get();
+        
+        // Calculate sold count for each product (completed orders only)
+        foreach($products as $product) {
+            $soldCount = Order::where('produk_id', $product->id)
+                ->where('status', 'Selesai') // Only count orders that are marked as completed
+                ->sum('jumlah');
+            $product->sold_count = $soldCount;
+        }
+        
+        // Identify best sellers (only products with the highest sold count)
+        $maxSoldCount = 0;
+        foreach($products as $product) {
+            if($product->sold_count > $maxSoldCount) {
+                $maxSoldCount = $product->sold_count;
+            }
+        }
+        
+        // Mark best sellers (only products with the maximum sold count)
+        foreach($products as $product) {
+            $product->is_best_seller = $product->sold_count == $maxSoldCount && $product->sold_count > 0;
+        }
+        
         $categories = Category::all();
         
         return view('home', compact('products', 'categories'));
@@ -116,22 +138,29 @@ class AuthController extends Controller
     public function showCheckout($productId)
     {
         $product = Product::findOrFail($productId);
-        return view('checkout', compact('product'));
+        return view('checkout.checkout', compact('product'));
     }
 
     public function processCheckout(Request $request)
     {
-        $request->validate([
+        $validationRules = [
             'product_id' => 'required|exists:products,id',
             'jumlah' => 'required|integer|min:1',
             'alamat_pengiriman' => 'required|string',
-            'bukti_pembayaran' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
-        ]);
+        ];
+
+        // Add proof of payment validation only if it's present in the request
+        if ($request->hasFile('bukti_pembayaran')) {
+            $validationRules['bukti_pembayaran'] = 'required|file|mimes:jpg,jpeg,png,pdf|max:2048';
+        }
+
+        $request->validate($validationRules);
 
         $product = Product::findOrFail($request->product_id);
         $totalHarga = $product->getFinalPrice() * $request->jumlah;
 
-        // Handle payment proof upload
+        // Handle payment proof upload if provided
+        $path = null;
         if ($request->hasFile('bukti_pembayaran')) {
             $file = $request->file('bukti_pembayaran');
             $filename = time() . '_' . $file->getClientOriginalName();
@@ -141,18 +170,27 @@ class AuthController extends Controller
         // Generate custom order ID
         $customOrderId = $this->generateCustomOrderId();
 
+        // Set status based on whether proof of payment was provided
+        $status = $path ? 'Diproses' : 'Menunggu';
+
         $order = Order::create([
             'custom_order_id' => $customOrderId,
             'user_id' => Auth::id(),
             'produk_id' => $request->product_id,
             'jumlah' => $request->jumlah,
             'total_harga' => $totalHarga,
-            'bukti_pembayaran' => $path ?? null,
+            'bukti_pembayaran' => $path,
             'alamat_pengiriman' => $request->alamat_pengiriman,
-            'status' => 'Diproses', // Change status directly to processing since proof is uploaded
+            'status' => $status,
         ]);
 
-        return redirect()->route('user.orders')->with('success', 'Pesanan Anda (ID: ' . $customOrderId . ') telah dibuat dan menunggu konfirmasi admin.');
+        if ($path) {
+            $redirectMessage = 'Pesanan Anda (ID: ' . $customOrderId . ') telah dibuat dan menunggu konfirmasi admin.';
+        } else {
+            $redirectMessage = 'Pesanan Anda (ID: ' . $customOrderId . ') telah dibuat. Silakan upload bukti pembayaran untuk melanjutkan proses.';
+        }
+
+        return redirect()->route('user.orders')->with('success', $redirectMessage);
     }
 
     private function generateCustomOrderId(): string
