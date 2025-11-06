@@ -1,0 +1,42 @@
+.navbar {
+  background-color: #0b1365 !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.navbar-brand {
+  font-weight: 700;
+  color: #fff !important;
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: 0.5px;
+}
+
+.nav-link {
+  color: #fff !important;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #FFEB3B !important;
+}
+
+.nav-link.active {
+  color: #FFEB3B !important;
+  border-bottom: 2px solid #FFEB3B;
+}
+
+.dropdown-menu {
+  background-color: #fff;
+  border-radius: 0.5rem;
+  border: none;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.dropdown-item:hover {
+  background-color: #E3F2FD;
+}
+
+.harga-asli {
+  color: #6c757d !important;
+  text-decoration: line-through;
+}
