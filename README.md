@@ -9,19 +9,6 @@
 
 ---
 
-## Daftar Isi
-
-- [Tentang Aplikasi](#tentang-aplikasi)
-- [Galeri Screenshot](#galeri-screenshot)
-- [Fitur Utama](#fitur-utama)
-- [Teknologi](#teknologi)
-- [Cara Instalasi](#cara-instalasi)
-- [Cara Menjalankan](#cara-menjalankan)
-- [Akun Default](#akun-default)
-- [Testing](#testing)
-- [Lisensi](#lisensi)
-
----
 
 ## Galeri Screenshot
 
