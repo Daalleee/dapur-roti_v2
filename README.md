@@ -233,21 +233,6 @@ Aplikasi ini dibuat dengan **Laravel Framework** yang berlisensi [MIT](https://o
 
 ---
 
-## 🤝 Kontribusi
-
-Terima kasih untuk kontribusi yang telah membantu pengembangan aplikasi Dapur Roti!
-
----
-
-## 📞 Dukungan
-
-Jika Anda mengalami masalah atau memiliki pertanyaan:
-
-1. Buka file `routes/web.php` untuk melihat semua routes yang tersedia
-2. Periksa log di `storage/logs/laravel.log` untuk debugging
-3. Pastikan database sudah ter-migrasi dengan `php artisan migrate:status`
-
----
 
 <p align="center">
   <strong>Dibuat dengan ❤️ menggunakan Laravel</strong>
