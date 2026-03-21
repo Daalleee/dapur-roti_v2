@@ -22,6 +22,41 @@
 
 ---
 
+## 📸 Galeri Screenshot
+
+### 🌐 Public Pages
+
+#### Homepage
+![Homepage](docs/screenshots/01-homepage.png)
+
+#### Produk
+![Produk](docs/screenshots/02-homepage-products.png)
+
+#### Kategori
+![Kategori](docs/screenshots/03-kategori.png)
+
+#### Login
+![Login](docs/screenshots/04-login.png)
+
+### 🔐 Admin Panel
+
+#### Dashboard Admin
+![Dashboard Admin](docs/screenshots/05-admin-dashboard.png)
+
+#### Manajemen Pesanan
+![Daftar Pesanan](docs/screenshots/06-admin-orders.png)
+
+#### Tambah Produk
+![Tambah Produk](docs/screenshots/07-admin-add-product.png)
+
+#### Tambah Kategori
+![Tambah Kategori](docs/screenshots/08-admin-add-category.png)
+
+#### Laporan
+![Laporan Admin](docs/screenshots/09-admin-reports.png)
+
+---
+
 ## 🏪 Tentang Aplikasi
 
 **Dapur Roti** adalah aplikasi e-commerce berbasis web yang dirancang khusus untuk toko roti. Aplikasi ini menyediakan platform lengkap untuk manajemen produk, pemesanan online, dan pelacakan pesanan dengan sistem status yang terintegrasi.
