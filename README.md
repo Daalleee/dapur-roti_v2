@@ -1,4 +1,4 @@
-# 🥐 Dapur Roti - Aplikasi E-Commerce Toko Roti
+# Dapur Roti - Aplikasi E-Commerce Toko Roti
 
 <p align="center">
   <img src="https://img.shields.io/badge/Laravel-11-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel 11">
@@ -9,22 +9,23 @@
 
 ---
 
-## 📖 Daftar Isi
+## Daftar Isi
 
-- [Tentang Aplikasi](#-tentang-aplikasi)
-- [Galeri Screenshot](#-galeri-screenshot)
-- [Fitur Utama](#-fitur-utama)
-- [Teknologi](#-teknologi)
-- [Cara Instalasi](#-cara-instalasi)
-- [Cara Menjalankan](#-cara-menjalankan)
-- [Akun Default](#-akun-default)
-- [Lisensi](#-lisensi)
+- [Tentang Aplikasi](#tentang-aplikasi)
+- [Galeri Screenshot](#galeri-screenshot)
+- [Fitur Utama](#fitur-utama)
+- [Teknologi](#teknologi)
+- [Cara Instalasi](#cara-instalasi)
+- [Cara Menjalankan](#cara-menjalankan)
+- [Akun Default](#akun-default)
+- [Testing](#testing)
+- [Lisensi](#lisensi)
 
 ---
 
-## 📸 Galeri Screenshot
+## Galeri Screenshot
 
-### 🌐 Public Pages
+### Public Pages
 
 #### Homepage
 ![Homepage](docs/screenshots/01-homepage.png)
@@ -38,7 +39,7 @@
 #### Login
 ![Login](docs/screenshots/04-login.png)
 
-### 🔐 Admin Panel
+### Admin Panel
 
 #### Dashboard Admin
 ![Dashboard Admin](docs/screenshots/05-admin-dashboard.png)
@@ -57,44 +58,44 @@
 
 ---
 
-## 🏪 Tentang Aplikasi
+## Tentang Aplikasi
 
 **Dapur Roti** adalah aplikasi e-commerce berbasis web yang dirancang khusus untuk toko roti. Aplikasi ini menyediakan platform lengkap untuk manajemen produk, pemesanan online, dan pelacakan pesanan dengan sistem status yang terintegrasi.
 
 Aplikasi ini memiliki dua jenis pengguna:
-- **Pelanggan** - Dapat浏览 produk, melakukan pemesanan, dan melacak status pesanan
+- **Pelanggan** - Dapat browsing produk, melakukan pemesanan, dan melacak status pesanan
 - **Admin** - Mengelola produk, kategori, pesanan, dan menghasilkan laporan penjualan
 
 ---
 
-## 🎯 Fitur Utama
+## Fitur Utama
 
-### 👤 Untuk Pelanggan
-
-| Fitur | Deskripsi |
-|-------|-----------|
-| 🛍️ **Browse Produk** | Melihat katalog produk roti dengan foto, harga, dan deskripsi lengkap |
-| 🏷️ **Filter by Kategori** | Mencari produk berdasarkan kategori (roti, kue, pastry, dll) |
-| 📄 **Detail Produk** | Melihat informasi lengkap produk termasuk harga diskon dan stok |
-| 📝 **Registrasi & Login** | Sistem autentikasi untuk melakukan pemesanan |
-| 🛒 **Checkout** | Proses pemesanan dengan input jumlah dan alamat pengiriman |
-| 📤 **Upload Bukti Pembayaran** | Upload foto/file bukti transfer bank |
-| 📦 **Riwayat Pesanan** | Melacak status pesanan secara real-time |
-
-### 🔐 Untuk Admin
+### Untuk Pelanggan
 
 | Fitur | Deskripsi |
 |-------|-----------|
-| 📊 **Dashboard** | Statistik penjualan, produk terlaris, total revenue, dan jumlah pelanggan |
-| 📦 **Manajemen Produk** | CRUD produk dengan dukungan upload multiple images |
-| 🏷️ **Manajemen Kategori** | CRUD kategori produk dengan validasi |
-| 📋 **Manajemen Pesanan** | Update status pesanan pelanggan (Menunggu → Diproses → Dikirim → Selesai) |
-| 📈 **Laporan Penjualan** | Generate laporan dengan filter tanggal dan produk |
-| 📥 **Export Data** | Download laporan dalam format Excel (.xls) atau CSV |
+| **Browse Produk** | Melihat katalog produk roti dengan foto, harga, dan deskripsi lengkap |
+| **Filter by Kategori** | Mencari produk berdasarkan kategori (roti, kue, pastry, dll) |
+| **Detail Produk** | Melihat informasi lengkap produk termasuk harga diskon dan stok |
+| **Registrasi & Login** | Sistem autentikasi untuk melakukan pemesanan |
+| **Checkout** | Proses pemesanan dengan input jumlah dan alamat pengiriman |
+| **Upload Bukti Pembayaran** | Upload foto/file bukti transfer bank |
+| **Riwayat Pesanan** | Melacak status pesanan secara real-time |
+
+### Untuk Admin
+
+| Fitur | Deskripsi |
+|-------|-----------|
+| **Dashboard** | Statistik penjualan, produk terlaris, total revenue, dan jumlah pelanggan |
+| **Manajemen Produk** | CRUD produk dengan dukungan upload multiple images |
+| **Manajemen Kategori** | CRUD kategori produk dengan validasi |
+| **Manajemen Pesanan** | Update status pesanan pelanggan (Menunggu -> Diproses -> Dikirim -> Selesai) |
+| **Laporan Penjualan** | Generate laporan dengan filter tanggal dan produk |
+| **Export Data** | Download laporan dalam format Excel (.xls) atau CSV |
 
 ---
 
-## 🛠️ Teknologi
+## Teknologi
 
 | Kategori | Teknologi | Versi |
 |----------|-----------|-------|
@@ -109,16 +110,16 @@ Aplikasi ini memiliki dua jenis pengguna:
 
 ---
 
-## 🚀 Cara Instalasi
+## Cara Instalasi
 
 ### Prasyarat
 
 Sebelum memulai, pastikan Anda telah menginstal:
 
-- ✅ PHP 8.2 atau lebih baru
-- ✅ [Composer](https://getcomposer.org/)
-- ✅ [Node.js](https://nodejs.org/) & npm
-- ✅ SQLite (bawaan PHP) atau MySQL
+- PHP 8.2 atau lebih baru
+- [Composer](https://getcomposer.org/)
+- [Node.js](https://nodejs.org/) & npm
+- SQLite (bawaan PHP) atau MySQL
 
 ### Langkah Instalasi
 
@@ -186,7 +187,7 @@ php artisan db:seed
 
 ---
 
-## ▶️ Cara Menjalankan
+## Cara Menjalankan
 
 ### Development Mode (Recommended)
 
@@ -215,12 +216,12 @@ php artisan queue:work
 
 ### Akses Aplikasi
 
-- 🌐 **Frontend:** http://localhost:8000
-- 🔐 **Admin Panel:** http://localhost:8000/admin
+- **Frontend:** http://localhost:8000
+- **Admin Panel:** http://localhost:8000/admin
 
 ---
 
-## 👤 Akun Default
+## Akun Default
 
 Setelah instalasi, buat akun admin pertama menggunakan **Laravel Tinker**:
 
@@ -248,7 +249,7 @@ User::create([
 
 ---
 
-## 🧪 Testing
+## Testing
 
 Jalankan test suite:
 
@@ -262,13 +263,12 @@ composer test
 
 ---
 
-## 📝 Lisensi
+## Lisensi
 
 Aplikasi ini dibuat dengan **Laravel Framework** yang berlisensi [MIT](https://opensource.org/licenses/MIT).
 
 ---
 
-
 <p align="center">
-  <strong>Dibuat dengan ❤️ menggunakan Laravel</strong>
+  <strong>Dibuat menggunakan Laravel</strong>
 </p>
